@@ -1,11 +1,20 @@
 import BigNumber from 'bignumber.js';
 import * as dayjs from 'dayjs';
+import { Chain } from './constants/network';
 
 const DAY_SECS = 86400;
 const YEAR_DAYS = 365;
 const EARLY_PAY_RATIO = 0.5;
 const PLATFORM_FEE = 0.01;
 
+/**
+* Take a duration in seconds and return the timestamp from now
+* @param seconds duration in seconds
+* @returns timestamp after seconds from now
+*/
+export function isEvmChain(chain: string) {
+  return [Chain.Polygon].includes(chain);
+}
 
 /**
 * Take a duration in seconds and return the timestamp from now

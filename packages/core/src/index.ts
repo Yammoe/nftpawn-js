@@ -1,3 +1,4 @@
+import NftPawn from './lib/NftPawn';
 export * as utils from './lib/utils';
 
 export {
@@ -6,3 +7,5 @@ export {
   calculateMaxTotalPay,
   calculateTotalPay,
 } from './lib/utils';
+
+export default NftPawn;
