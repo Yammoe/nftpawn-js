@@ -4,6 +4,7 @@ import * as dayjs from 'dayjs';
 const DAY_SECS = 86400;
 const YEAR_DAYS = 365;
 const EARLY_PAY_RATIO = 0.5;
+const PLATFORM_FEE = 0.01;
 
 
 /**
@@ -60,12 +61,13 @@ export const calculateMaxTotalPay = (principal: number, interest: number, durati
 * @param principal principal amount of the loan
 * @param interest interest rate (eg: passing 0.1 for 10%) of the loan
 * @param duration duration in seconds of the loan
+* @param decimals maximum decimal places of currency, Eg: decimals = 18 for ETH, because it is divisible up to 18 decimal places
 * @param startedAt timestamp in seconds when the loan started
 * @returns return payment amount of the loan
 */
-export const calculateTotalPay = (principal: number, interest: number, duration: number, startedAt: number) => {
+export const calculateTotalPay = (principal: number, interest: number, duration: number, decimals: number, startedAt: number) => {
   const payAt = dayjs().unix();
-  // const _decimal = new BigNumber(10).pow(decimals)
+  const _decimal = new BigNumber(10).pow(decimals)
 
   let maxLoanDay = Math.floor(duration / DAY_SECS);
   if (maxLoanDay === 0) maxLoanDay = 1;
@@ -79,7 +81,7 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
   }
 
   const primaryInterest = new BigNumber(principal)
-    // .multipliedBy(_decimal)
+    .multipliedBy(_decimal)
     .multipliedBy(interest)
     .multipliedBy(loanDay)
     .dividedToIntegerBy(YEAR_DAYS);
@@ -87,22 +89,24 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
   if (maxLoanDay > loanDay) {
     // 50% interest remain day
     secondaryInterest = new BigNumber(principal)
-      // .multipliedBy(_decimal)
+      .multipliedBy(_decimal)
       .multipliedBy(interest)
       .multipliedBy(maxLoanDay - loanDay)
       .dividedToIntegerBy(YEAR_DAYS)
-      .multipliedBy(EARLY_PAY_RATIO);
+      .multipliedBy(EARLY_PAY_RATIO)
+      .integerValue(BigNumber.ROUND_FLOOR);
   }
   // 1% fee (base on principal amount)
   const matchingFee = new BigNumber(principal)
-    // .multipliedBy(_decimal)
-    .dividedToIntegerBy(100);
+    .multipliedBy(_decimal)
+    .multipliedBy(PLATFORM_FEE)
+    .integerValue(BigNumber.ROUND_FLOOR);
 
   return new BigNumber(principal)
-    // .multipliedBy(_decimal)
+    .multipliedBy(_decimal)
     .plus(primaryInterest)
     .plus(secondaryInterest)
     .plus(matchingFee)
-    // .dividedBy(_decimal)
+    .dividedBy(_decimal)
     .toString(10);
 };
