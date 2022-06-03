@@ -1,11 +1,8 @@
 import NftPawn from './lib/NftPawn';
+
 export * as utils from './lib/utils';
+export * from './lib/utils';
+export * from './lib/ApiModel';
 
-export {
-  timestampAfter,
-  calculateMaxInterest,
-  calculateMaxTotalPay,
-  calculateTotalPay,
-} from './lib/utils';
-
+export { NftPawn }
 export default NftPawn;

@@ -1,4 +1,4 @@
-import ApiController, { GetListingLoanParams, ListParams, LoansParams, OffersParams } from './Api';
+import ApiController, { CollectionParams, CollectionVerifiedParams, GetListingLoanParams, ListParams, LoansParams, OffersParams, SyncBlockParams, TransactionParams } from './Api';
 
 interface Options {
   cluster: 'mainnet' | 'testnet',
@@ -10,47 +10,83 @@ interface AssetParams {
   token_id?: string;
 }
 
-export default class NftPawn {
-  private api: ApiController;
+interface NftPawnConfig {
+  near_nftypawn_address: string;
+}
 
-  static async init(options: Options) {
-    const instance = new NftPawn(options);
-    return instance;
-  }
+let api: ApiController;
+let config: NftPawnConfig; 
 
-  private constructor(options: Options) {
-    this.api = new ApiController({ cluster: options.cluster });
-  }
+const NftPawn = {
+
+  async init(options: Options) {
+    api = new ApiController({ cluster: options.cluster });
+    const res = await api.getNftPawnConfig();
+    config = {
+      near_nftypawn_address: res.result.near_nftypawn_address,
+    };
+  },
+
+  getConfig(): NftPawnConfig {
+    return config;
+  },
+
+  async marketStats() {
+    return api.getNftPawnStats();
+  },
 
   async listingLoans(params: GetListingLoanParams) {
-    return this.api.getListingLoans(params);
-  }
+    return api.getListingLoans(params);
+  },
 
   async loans(params: LoansParams) {
-    return this.api.getLoansByFilter(params);
-  }
+    return api.getLoansByFilter(params);
+  },
 
   async loan(params: AssetParams) {
     if (params.seo)
-      return this.api.getLoanAsset(params.seo);
+      return api.getLoanAsset(params.seo);
     if (params.contract_address && params.token_id)
-      return this.api.getAssetInfo(params.contract_address, params.token_id);
+      return api.getAssetInfo(params.contract_address, params.token_id);
     throw Error('Not enough params')
-  }
+  },
 
   async offers(params: OffersParams) {
-    return this.api.getOffersByFilter(params);
-  }
+    return api.getOffersByFilter(params);
+  },
 
-  async collections(params: ListParams) {
-    return this.api.getCollections(params);
-  }
+  async collections(params?: ListParams) {
+    return api.getCollections(params);
+  },
 
-  async collection(id: number) {
-    return this.api.getCollectionById(id);
-  }
+  async collection(params: CollectionParams) {
+    return api.getCollection(params);
+  },
+
+  async collectionVerified(params: CollectionVerifiedParams) {
+    return api.getCollectionVerified(params);
+  },
 
   async currencies(chain: string) {
-    return this.api.getSupportedCurrencies(chain);
-  }
+    return api.getSupportedCurrencies(chain);
+  },
+
+  async loanTransactions(params: TransactionParams) {
+    return api.getLoanTransactions(params);
+  },
+  
+  async assetTransactions(params: TransactionParams) {
+    return api.getAssetTransactions(params);
+  },
+
+  async borrower(address: string) {
+    return api.getBorrowStats(address);
+  },
+
+
+  async syncBlock(params: SyncBlockParams) {
+    return api.syncBlock(params);
+  },
 }
+
+export default NftPawn;

@@ -20,11 +20,17 @@ export interface GetListingLoanParams extends ListParams {
   max_price?: number;
   collection?: string;
   network?: string;
+  search?: string;
 }
 
 export interface LoansParams extends ListParams {
   owner?: string;
   status?: "new" | "created" | "cancelled" | "done" | "liquidated";
+}
+
+export interface CollectionParams {
+  id?: number | string;
+  seo_url?: string;
 }
 
 export interface OffersParams {
@@ -33,9 +39,15 @@ export interface OffersParams {
   network?: string;
   status?: "new" | "approved" | "rejected" | "cancelled" | "done" | "liquidated" | "repaid";
 }
-export interface LoanTransactionParams {
+export interface TransactionParams {
   status?: "listed" | "cancelled" | "offered" | "repaid" | "liquidated";
   asset_id: string;
+}
+
+export interface CollectionVerifiedParams {
+  network: string;
+  contract_address: string;
+  token_id: string;
 }
 
 export interface SyncBlockParams {
@@ -44,6 +56,7 @@ export interface SyncBlockParams {
   contract_address: 'string';
   token_id: 'string';
 }
+
 
 export default class ApiController {
   private axioInstance: Axios;
@@ -65,17 +78,26 @@ export default class ApiController {
     });
   }
   
+  async getNftPawnConfig(): Promise<ResponseResult> {
+    return this.axioInstance.get(API_URL.SYSTEM_CONFIGS);
+  };
+
+  async getNftPawnStats(): Promise<ResponseResult> {
+    return this.axioInstance.get(API_URL.PLATFORM_STATS);
+  };
+
   async getSupportedCurrencies(network: string): Promise<ListResponse<CurrencyData>> {
     return this.axioInstance.get(`${API_URL.CURRENCIES}?network=${network}`);
   };
   
+  async getCollection(params: CollectionParams): Promise<ResponseResult> {
+    return this.axioInstance.get(`${API_URL.COLLECTION_DETAIL}/${params.seo_url || params.id}`);
+  };
+
   async getCollections(params?: ListParams): Promise<ListResponse<CollectionData>> {
     return this.axioInstance.get(API_URL.COLLECTIONS, { params });
   };
-  
-  async getCollectionById(id: number | string): Promise<ResponseResult> {
-    return this.axioInstance.get(`${API_URL.COLLECTION_DETAIL}/${id}`);
-  };
+
   
   async getListingLoans(params?: GetListingLoanParams): Promise<ListResponse<LoanData>> {
     return this.axioInstance.get(API_URL.LISTING_LOANS, { params });
@@ -98,6 +120,22 @@ export default class ApiController {
   
   async getOffersByFilter(params: OffersParams): Promise<ListResponse<OfferData>> {
     return this.axioInstance.get(`${API_URL.OFERS}`, { params });
+  };
+
+  async getLoanTransactions(params: TransactionParams): Promise<ListResponse<any>> {
+    return this.axioInstance.get(`${API_URL.LOAN_TRANSACTIONS}`, { params });
+  };
+
+  async getAssetTransactions(params: TransactionParams): Promise<ListResponse<any>> {
+    return this.axioInstance.get(`${API_URL.ASSET_TRANSACTIONS}`, { params });
+  };
+
+  async getBorrowStats(address: string): Promise<ResponseResult> {
+    return this.axioInstance.get(`${API_URL.BORROWER_STATS}/${address}`);
+  };
+
+  async getCollectionVerified(params: CollectionVerifiedParams): Promise<ResponseResult> {
+    return this.axioInstance.get(API_URL.COLLECTION_VERIFIED, { params });
   };
 
   async syncBlock(params: SyncBlockParams): Promise<ResponseResult> {
