@@ -1,62 +1,9 @@
 import axios, { Axios } from 'axios';
-import { CollectionData, CurrencyData, ListResponse, LoanData, OfferData, ResponseResult } from './ApiModel';
+import { CollectionParams, CollectionVerifiedParams, GetListingLoanParams, ListParams, LoansParams, OffersParams, Options, SyncBlockParams, TransactionParams } from './api.interface';
+import { CollectionData, CurrencyData, ListResponse, LoanData, OfferData, ResponseResult } from './api.model';
 import { Chain } from './constants/network';
 import { API_ENDPOINT, API_URL } from './constants/url';
 import { isEvmChain } from './utils';
-
-interface Options {
-  cluster: 'mainnet' | 'testnet';
-}
-
-export interface ListParams {
-  page?: number;
-  limit?: number;
-}
-
-export interface GetListingLoanParams extends ListParams {
-  collection_id?: number | undefined;
-  exclude_ids?: string;
-  min_price?: number;
-  max_price?: number;
-  collection?: string;
-  network?: string;
-  search?: string;
-}
-
-export interface LoansParams extends ListParams {
-  owner?: string;
-  status?: "new" | "created" | "cancelled" | "done" | "liquidated";
-}
-
-export interface CollectionParams {
-  id?: number | string;
-  seo_url?: string;
-}
-
-export interface OffersParams {
-  borrower?: string;
-  lender?: string;
-  network?: string;
-  status?: "new" | "approved" | "rejected" | "cancelled" | "done" | "liquidated" | "repaid";
-}
-export interface TransactionParams {
-  status?: "listed" | "cancelled" | "offered" | "repaid" | "liquidated";
-  asset_id: string;
-}
-
-export interface CollectionVerifiedParams {
-  network: string;
-  contract_address: string;
-  token_id: string;
-}
-
-export interface SyncBlockParams {
-  network: string;
-  block_number: string;
-  contract_address: 'string';
-  token_id: 'string';
-}
-
 
 export default class ApiController {
   private axioInstance: Axios;

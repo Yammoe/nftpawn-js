@@ -1,4 +1,5 @@
-import ApiController, { CollectionParams, CollectionVerifiedParams, GetListingLoanParams, ListParams, LoansParams, OffersParams, SyncBlockParams, TransactionParams } from './Api';
+import { CollectionParams, CollectionVerifiedParams, GetListingLoanParams, ListParams, LoansParams, OffersParams, SyncBlockParams, TransactionParams }  from './api.interface';
+import ApiController from './Api';
 
 interface Options {
   cluster: 'mainnet' | 'testnet',
@@ -35,6 +36,11 @@ const NftPawn = {
     return api.getNftPawnStats();
   },
 
+  /**
+  * Get current listing loans on NftPawn with conditions
+  * @param params condition to filter returned loans
+  * @returns array of listing loans
+  */
   async listingLoans(params: GetListingLoanParams) {
     return api.getListingLoans(params);
   },
