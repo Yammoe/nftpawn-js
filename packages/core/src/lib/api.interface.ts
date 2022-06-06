@@ -37,7 +37,7 @@ export interface GetListingLoanParams extends ListParams {
   exclude_ids?: string;
   min_price?: number;
   max_price?: number;
-  network?: typeof Chain | string;
+  network?: Chain;
   search?: string;
 }
 
@@ -74,7 +74,7 @@ export interface CollectionParams {
 export interface OffersParams {
   borrower?: string;
   lender?: string;
-  network?: typeof Chain | string;
+  network?: Chain;
   status?: "new" | "approved" | "rejected" | "cancelled" | "done" | "liquidated" | "repaid";
 }
 
@@ -99,7 +99,7 @@ export interface TransactionParams {
 export interface CollectionVerifiedParams {
   token_id: string | number;
   contract_address: string;
-  network: string;
+  network: Chain;
 }
 
 
@@ -114,5 +114,5 @@ export interface SyncBlockParams {
   block_number: string | number;
   token_id: string | number;
   contract_address: string;
-  network: string;
+  network: Chain;
 }

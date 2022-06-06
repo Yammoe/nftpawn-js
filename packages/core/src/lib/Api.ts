@@ -86,7 +86,7 @@ export default class ApiController {
   };
 
   async syncBlock(params: SyncBlockParams): Promise<ResponseResult> {
-    if (params.network === Chain.Near) {
+    if (params.network === 'NEAR') {
       return this.axioInstance.post(
         API_URL.SYNC_BLOCK_NEAR, 
         { token_id: params.token_id, contract_address: params.contract_address }

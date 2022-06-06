@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@nftpawn-js/core": ["packages/core/src/index.ts"]
+      "@nftpawn-js/core": ["packages/core/src/index.ts"],
+      "@nftpawn-js/near": ["packages/near/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

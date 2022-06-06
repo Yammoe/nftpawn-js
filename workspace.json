@@ -3,7 +3,6 @@
   "version": 2,
   "projects": {
     "core": "packages/core",
-    "near": "examples/near",
-    "near-e2e": "examples/near-e2e"
+    "near": "packages/near"
   }
 }

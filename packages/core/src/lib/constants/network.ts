@@ -1,5 +1,1 @@
-export const Chain = {
-  None: '',
-  Near: 'NEAR',
-  Polygon: 'MATIC',
-};
+export type Chain = 'NEAR' | 'MATIC';

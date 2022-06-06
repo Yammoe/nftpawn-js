@@ -12,8 +12,8 @@ const PLATFORM_FEE = 0.01;
 * @param seconds duration in seconds
 * @returns timestamp after seconds from now
 */
-export function isEvmChain(chain: string) {
-  return [Chain.Polygon].includes(chain);
+export function isEvmChain(chain: Chain) {
+  return ["MATIC"].includes(chain);
 }
 
 /**
