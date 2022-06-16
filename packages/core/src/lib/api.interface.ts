@@ -111,7 +111,7 @@ export interface CollectionVerifiedParams {
   * @member {string} network - chain symbol
 */
 export interface SyncBlockParams {
-  block_number: string | number;
+  block_number?: string | number;
   token_id: string | number;
   contract_address: string;
   network: Chain;

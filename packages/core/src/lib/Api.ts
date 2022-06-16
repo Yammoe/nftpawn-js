@@ -1,7 +1,6 @@
 import axios, { Axios } from 'axios';
 import { CollectionParams, CollectionVerifiedParams, GetListingLoanParams, ListParams, LoansParams, OffersParams, Options, SyncBlockParams, TransactionParams } from './api.interface';
 import { CollectionData, CurrencyData, ListResponse, LoanData, OfferData, ResponseResult } from './api.model';
-import { Chain } from './constants/network';
 import { API_ENDPOINT, API_URL } from './constants/url';
 import { isEvmChain } from './utils';
 

@@ -13,6 +13,7 @@ interface AssetParams {
 
 interface NftPawnConfig {
   near_nftypawn_address: string;
+  cluster: string;
 }
 
 let api: ApiController;
@@ -25,6 +26,7 @@ const NftPawn = {
     const res = await api.getNftPawnConfig();
     config = {
       near_nftypawn_address: res.result.near_nftypawn_address,
+      cluster: options.cluster,
     };
   },
 
