@@ -1,10 +1,9 @@
+import { TransactionResult } from '@nftpawn-js/core';
 import BigNumber from 'bignumber.js';
 
-import NearTransaction from './index';
-import { TransactionResult } from 'src/modules/nftLend/models/transaction';
-import { APP_URL } from 'src/common/constants/url';
+import Transaction from './index';
 
-export default class PayLoanNearNativeTransaction extends NearTransaction {
+export default class PayLoanNearTx extends Transaction {
   async run(
     payAmount: number,
     assetTokenId: string,
@@ -21,30 +20,22 @@ export default class PayLoanNearNativeTransaction extends NearTransaction {
       const amount =  new BigNumber(payAmount).multipliedBy(10 ** currencyDecimals).toString(10)
 
       const transactions = [
-        {
-          receiverId: this.lendingProgram,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: "pay_back_loan_by_near",
-                args: {
-                  nft_contract_id: assetContractAddress,
-                  token_id: assetTokenId,
-                },
-                gas,
-                deposit: amount,
-              },
-            }
-          ]
-        },
+        this.txObject(
+          this.lendingProgram,
+          'pay_back_loan_by_near,',
+          {
+            nft_contract_id: assetContractAddress,
+            token_id: assetTokenId,
+          },
+          amount,
+          gas
+        ),
       ];
 
-      this.saveStateBeforeRedirect({ contract_address: assetContractAddress, token_id: assetTokenId });
-
-      const res = await window.nearSelector.signAndSendTransactions({ 
+      const wallet = await this.walletSelector.wallet()
+      const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }, `${window.location.origin}${APP_URL.DASHBOARD}/loans`),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

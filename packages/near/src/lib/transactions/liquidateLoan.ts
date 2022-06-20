@@ -1,7 +1,7 @@
-import NearTransaction from './index';
-import { TransactionResult } from 'src/modules/nftLend/models/transaction';
+import { TransactionResult } from '@nftpawn-js/core';
+import Transaction from './index';
 
-export default class LiquidateLoanNearTransaction extends NearTransaction {
+export default class LiquidateLoanTx extends Transaction {
   async run(
     assetTokenId: string,
     assetContractAddress: string,
@@ -10,30 +10,22 @@ export default class LiquidateLoanNearTransaction extends NearTransaction {
       const gas = await this.calculateGasFee();
 
       const transactions = [
-        {
-          receiverId: this.lendingProgram,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: "liquidate_overdue_loan",
-                args: {
-                  nft_contract_id: assetContractAddress,
-                  token_id: assetTokenId
-                },
-                gas,
-                deposit: 1,
-              },
-            }
-          ]
-        },
+        this.txObject(
+          this.lendingProgram,
+          'liquidate_overdue_loan,',
+          {
+            nft_contract_id: assetContractAddress,
+            token_id: assetTokenId
+          },
+          1,
+          gas
+        )
       ];
 
-      this.saveStateBeforeRedirect({ contract_address: assetContractAddress, token_id: assetTokenId });
-
-      const res = await window.nearSelector.signAndSendTransactions({ 
+      const wallet = await this.walletSelector.wallet()
+      const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

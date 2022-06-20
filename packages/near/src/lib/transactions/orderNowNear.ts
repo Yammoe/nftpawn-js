@@ -1,10 +1,9 @@
+import { timestampAfter, TransactionResult } from '@nftpawn-js/core';
 import BigNumber from 'bignumber.js';
 
-import NearTransaction from './index';
-import { TransactionResult } from 'src/modules/nftLend/models/transaction';
-import { getAvailableAt } from 'src/modules/nftLend/utils';
+import Transaction from './index';
 
-export default class OrderNowNearNativeTransaction extends NearTransaction {
+export default class OrderNowNearTx extends Transaction {
   async run(
     assetTokenId: string,
     assetContractAddress: string,
@@ -19,7 +18,6 @@ export default class OrderNowNearNativeTransaction extends NearTransaction {
       const transactions = [];
 
       const amount = new BigNumber(principal).multipliedBy(10 ** currencyDecimals).toString(10)
-      console.log("🚀 ~ file: orderNowNear.ts ~ line 22 ~ OrderNowNearNativeTransaction ~ amount", amount)
 
       const msg = JSON.stringify({
         nft_contract_id: assetContractAddress,
@@ -29,31 +27,23 @@ export default class OrderNowNearNativeTransaction extends NearTransaction {
         loan_duration: duration,
         loan_currency: currencyContractAddress,
         loan_interest_rate: new BigNumber(rate).multipliedBy(10000).toNumber(),
-        available_at: getAvailableAt(0),
+        available_at: timestampAfter(0),
       });
       
-      transactions.push({
-        receiverId: this.lendingProgram,
-        actions: [
-          {
-            type: 'FunctionCall',
-            params: {
-              methodName: "offer_by_near",
-              args: {
-                msg,
-              },
-              gas,
-              deposit: amount,
-            },
-          }
-        ]
-      });
+      transactions.push(
+        this.txObject(
+          this.lendingProgram,
+          'offer_by_near,',
+          { msg },
+          amount,
+          gas
+        )
+      );
 
-      this.saveStateBeforeRedirect({ contract_address: assetContractAddress, token_id: assetTokenId });
-
-      const res = await window.nearSelector.signAndSendTransactions({ 
+      const wallet = await this.walletSelector.wallet()
+      const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

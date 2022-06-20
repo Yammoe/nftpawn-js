@@ -11,30 +11,23 @@ export default class AcceptOfferTx extends Transaction {
       const gas = await this.calculateGasFee();
 
       const transactions = [
-        {
-          receiverId: this.lendingProgram,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: "accept_offer",
-                args: {
-                  nft_contract_id: assetContractAddress,
-                  token_id: assetTokenId,
-                  offer_id: offerId,
-                },
-                gas,
-                deposit: 1,
-              },
-            }
-          ]
-        },
+        this.txObject(
+          this.lendingProgram,
+          'accept_offer,',
+          {
+            nft_contract_id: assetContractAddress,
+            token_id: assetTokenId,
+            offer_id: offerId,
+          },
+          1,
+          gas
+        ),
       ];
 
       const wallet = await this.walletSelector.wallet()
       const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

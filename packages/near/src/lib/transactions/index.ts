@@ -1,27 +1,56 @@
 import { WalletSelector } from '@near-wallet-selector/core';
 import NftPawn, { TransactionResult } from '@nftpawn-js/core';
+import * as nearAPI from "near-api-js";
 
-import { NEAR_DEFAULT_GAS } from '../utils';
+import { NEAR_DEFAULT_GAS, WalletSelectorTransaction } from '../utils';
+
+interface TransactionOptions {
+  callbackUrl?: string;
+}
 
 export default class Transaction {
   lendingProgram;
   accountId;
   walletSelector: WalletSelector;
+  provider: nearAPI.providers.JsonRpcProvider;
+  callbackUrl?: string
 
-  constructor(walletSelector: WalletSelector, accountId: string) {
-    this.lendingProgram = NftPawn.getConfig().near_nftypawn_address;
-    this.walletSelector = walletSelector;
-    this.accountId = accountId;
+  constructor(walletSelector: WalletSelector, accountId: string, options?: TransactionOptions) {
+    this.lendingProgram = NftPawn.getConfig().near_nftypawn_address
+    this.accountId = accountId
+    this.walletSelector = walletSelector
+    this.callbackUrl = options?.callbackUrl
+
+    const { nodeUrl } = walletSelector.options.network;
+    this.provider = new nearAPI.providers.JsonRpcProvider({ url: nodeUrl });
   }
 
-  calculateGasFee = async (): Promise<string | null> => {
-    return NEAR_DEFAULT_GAS;
+  calculateGasFee = async (): Promise<string> => {
+    return NEAR_DEFAULT_GAS as string;
   }
 
   generateCallbackUrl = (query: any, customUrl?: string): string => {
     const url = new URL(customUrl || `${window.location.origin}${window.location.pathname}`);
     Object.keys(query).forEach(k => url.searchParams.set(k, query[k]));
     return url.toString();
+  }
+
+  txObject = (receiverId: string, methodName: string, args: any, deposit: number | string, gas: string): WalletSelectorTransaction => {
+    return {
+      signerId: this.accountId,
+      receiverId,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName,
+            args,
+            gas,
+            deposit: String(deposit),
+          },
+        }
+      ]
+    } as WalletSelectorTransaction
   }
 
   handleError = async (err: any): Promise<TransactionResult> => {
@@ -38,7 +67,7 @@ export default class Transaction {
           if (res.result) {
             break;
           }
-        } catch (err) { }
+        } catch (err) { /* */ }
         await new Promise(r => setTimeout(r, 5000));
         count += 1;
       }

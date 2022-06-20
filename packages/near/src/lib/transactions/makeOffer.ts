@@ -1,11 +1,10 @@
 import BigNumber from 'bignumber.js';
+import { timestampAfter, TransactionResult } from '@nftpawn-js/core';
 
-import NearTransaction from './index';
-import { TransactionResult } from 'src/modules/nftLend/models/transaction';
-import { getAvailableAt } from 'src/modules/nftLend/utils';
+import Transaction from './index';
 import { nearViewFunction } from '../utils';
 
-export default class MakeOfferNearTransaction extends NearTransaction {
+export default class MakeOfferTx extends Transaction {
   async run(
     assetTokenId: string,
     assetContractAddress: string,
@@ -20,23 +19,16 @@ export default class MakeOfferNearTransaction extends NearTransaction {
       const gas = await this.calculateGasFee();
       const transactions = [];
 
-      const storageBalance = await nearViewFunction(currencyContractAddress, 'storage_balance_of', { account_id: this.accountId });
+      const storageBalance = await nearViewFunction(this.provider, currencyContractAddress, 'storage_balance_of', { account_id: this.accountId });
       if (!storageBalance) {
-        const bound = await nearViewFunction(currencyContractAddress, 'storage_balance_bounds');
-        transactions.push({
-          receiverId: currencyContractAddress,
-          actions: [
-            {
-              type: 'FunctionCall',
-              params: {
-                methodName: "storage_deposit",
-                args: { },
-                gas,
-                deposit: bound.min,
-              },
-            }
-          ]
-        });
+        const bound = await nearViewFunction(this.provider, currencyContractAddress, 'storage_balance_bounds');
+        transactions.push(this.txObject(
+          currencyContractAddress,
+          'storage_deposit,',
+          { },
+          bound.min,
+          gas
+        ));
       }
 
       const msg = JSON.stringify({
@@ -47,33 +39,27 @@ export default class MakeOfferNearTransaction extends NearTransaction {
         loan_duration: duration,
         loan_currency: currencyContractAddress,
         loan_interest_rate: new BigNumber(rate).multipliedBy(10000).toNumber(),
-        available_at: getAvailableAt(availableIn),
+        available_at: timestampAfter(availableIn),
       });
 
-      transactions.push({
-        receiverId: currencyContractAddress,
-        actions: [
+      transactions.push(
+        this.txObject(
+          currencyContractAddress,
+          'ft_transfer_call,',
           {
-            type: 'FunctionCall',
-            params: {
-              methodName: "ft_transfer_call",
-              args: {
-                receiver_id: this.lendingProgram,
-                amount: new BigNumber(principal).multipliedBy(10 ** currencyDecimals).toString(10),
-                msg,
-              },
-              gas,
-              deposit: 1,
-            },
-          }
-        ]
-      });
+            receiver_id: this.lendingProgram,
+            amount: new BigNumber(principal).multipliedBy(10 ** currencyDecimals).toString(10),
+            msg,
+          },
+          1,
+          gas
+        )
+      );
 
-      this.saveStateBeforeRedirect({ contract_address: assetContractAddress, token_id: assetTokenId });
-
-      const res = await window.nearSelector.signAndSendTransactions({ 
+      const wallet = await this.walletSelector.wallet()
+      const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

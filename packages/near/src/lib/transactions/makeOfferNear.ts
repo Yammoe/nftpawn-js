@@ -1,11 +1,9 @@
+import { timestampAfter, TransactionResult } from '@nftpawn-js/core';
 import BigNumber from 'bignumber.js';
-import * as nearAPI from "near-api-js";
 
-import NearTransaction from './index';
-import { TransactionResult } from 'src/modules/nftLend/models/transaction';
-import { getAvailableAt } from 'src/modules/nftLend/utils';
+import Transaction from './index';
 
-export default class MakeOfferNearNativeTransaction extends NearTransaction {
+export default class MakeOfferNearTx extends Transaction {
   async run(
     assetTokenId: string,
     assetContractAddress: string,
@@ -30,32 +28,27 @@ export default class MakeOfferNearNativeTransaction extends NearTransaction {
         loan_duration: duration,
         loan_currency: currencyContractAddress,
         loan_interest_rate: new BigNumber(rate).multipliedBy(10000).toNumber(),
-        available_at: getAvailableAt(availableIn),
+        available_at: timestampAfter(availableIn),
       });
 
-      transactions.push({
-        receiverId: this.lendingProgram,
-        actions: [
+      transactions.push(
+        this.txObject(
+          this.lendingProgram,
+          'offer_by_near,',
           {
-            type: 'FunctionCall',
-            params: {
-              methodName: "offer_by_near",
-              args: {
-                receiver_id: this.lendingProgram,
-                amount,
-                msg,
-              },
-              gas,
-              deposit: amount,
-            },
-          }
-        ]
-      });
+            receiver_id: this.lendingProgram,
+            amount,
+            msg,
+          },
+          amount,
+          gas
+        )
+      );
 
-      this.saveStateBeforeRedirect({ contract_address: assetContractAddress, token_id: assetTokenId });
-      const res = await window.nearSelector.signAndSendTransactions({ 
+      const wallet = await this.walletSelector.wallet()
+      const res = await wallet.signAndSendTransactions({ 
         transactions,
-        callbackUrl: this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
+        callbackUrl: this.callbackUrl || this.generateCallbackUrl({ token_id: assetTokenId, contract_address: assetContractAddress }),
       });
       
       return this.handleSuccess(

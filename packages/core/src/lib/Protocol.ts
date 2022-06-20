@@ -8,6 +8,5 @@ export abstract class Protocol {
   abstract acceptOffer(params: AcceptOfferParams): Promise<TransactionResult>;
   abstract orderNow(params: OrderNowParams): Promise<TransactionResult>;
   abstract liquidateLoan(params: LiquidateLoanParams): Promise<TransactionResult>;
-  abstract closeOffer(params: CloseOfferParams): Promise<TransactionResult>;
   abstract payLoan(params: PayLoanParams): Promise<TransactionResult>;
 }

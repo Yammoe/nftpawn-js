@@ -16,6 +16,7 @@ export function isEvmChain(chain: Chain) {
   return ["MATIC"].includes(chain);
 }
 
+
 /**
 * Take a duration in seconds and return the timestamp from now
 * @param seconds duration in seconds
