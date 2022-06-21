@@ -13,7 +13,7 @@ export default class CancelOfferTx extends Transaction {
       const transactions = [
         this.txObject(
           this.lendingProgram,
-          'cancel_offer,',
+          'cancel_offer',
           {
             nft_contract_id: assetContractAddress,
             token_id: assetTokenId,

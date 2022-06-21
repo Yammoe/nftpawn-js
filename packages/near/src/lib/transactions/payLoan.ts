@@ -31,7 +31,7 @@ export default class PayLoanTx extends Transaction {
       const transactions = [
           this.txObject(
           currencyContractAddress,
-          'ft_transfer_call,',
+          'ft_transfer_call',
           {
             receiver_id: this.lendingProgram,
             amount: new BigNumber(payAmount).multipliedBy(10 ** currencyDecimals).toString(10),

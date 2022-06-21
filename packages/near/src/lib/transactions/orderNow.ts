@@ -23,7 +23,7 @@ export default class OrderNowTx extends Transaction {
         const bound = await nearViewFunction(this.provider, currencyContractAddress, 'storage_balance_bounds');
         transactions.push(this.txObject(
           currencyContractAddress,
-          'storage_deposit,',
+          'storage_deposit',
           { },
           bound.min,
           gas
@@ -44,7 +44,7 @@ export default class OrderNowTx extends Transaction {
       transactions.push(
         this.txObject(
           currencyContractAddress,
-          'ft_transfer_call,',
+          'ft_transfer_call',
           {
             receiver_id: this.lendingProgram,
             amount: new BigNumber(principal).multipliedBy(10 ** currencyDecimals).toString(10),

@@ -33,7 +33,7 @@ export default class OrderNowNearTx extends Transaction {
       transactions.push(
         this.txObject(
           this.lendingProgram,
-          'offer_by_near,',
+          'offer_by_near',
           { msg },
           amount,
           gas

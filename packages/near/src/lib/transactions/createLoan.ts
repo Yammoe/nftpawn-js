@@ -23,15 +23,12 @@ export default class CreateLoanTx extends Transaction {
         'get_sale',
         { nft_contract_token: `${assetContractAddress}||${assetTokenId}` },
       );
-      console.log("🚀 ~ file: createLoan.ts ~ line 26 ~ CreateLoanTx ~ existed", existed)
       if (existed  && [NEAR_LOAN_STATUS.Open, NEAR_LOAN_STATUS.Processing].includes(existed.status)) {
         // Request api to sync the asset
         NftPawn.syncBlock({ network: 'NEAR', token_id: assetTokenId, contract_address: assetContractAddress });
         throw new Error('This asset is in a processing loan');
       }
-      console.log("🚀 ~ 1")
       const requiredAmount = await nearViewFunction(this.provider, this.lendingProgram, 'storage_minimum_balance');
-      console.log("🚀 ~ file: createLoan.ts ~ line 34 ~ CreateLoanTx ~ requiredAmount", requiredAmount)
       
       const msg = JSON.stringify({
         loan_principal_amount: new BigNumber(principal).multipliedBy(10 ** currencyDecimals).toString(10),
@@ -46,14 +43,14 @@ export default class CreateLoanTx extends Transaction {
       const transactions = [
         this.txObject(
           this.lendingProgram,
-          'storage_deposit,',
+          'storage_deposit',
           { account_id: this.accountId },
           requiredAmount,
           gas
         ),
         this.txObject(
           assetContractAddress,
-          'nft_approve,',
+          'nft_approve',
           { token_id: assetTokenId, account_id: this.lendingProgram, msg },
           requiredAmount,
           gas

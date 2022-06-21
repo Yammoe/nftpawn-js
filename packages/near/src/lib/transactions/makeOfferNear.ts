@@ -34,7 +34,7 @@ export default class MakeOfferNearTx extends Transaction {
       transactions.push(
         this.txObject(
           this.lendingProgram,
-          'offer_by_near,',
+          'offer_by_near',
           {
             receiver_id: this.lendingProgram,
             amount,

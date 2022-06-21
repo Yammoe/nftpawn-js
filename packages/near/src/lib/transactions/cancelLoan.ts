@@ -10,7 +10,7 @@ export default class CancelLoanTx extends Transaction {
       const gas = await this.calculateGasFee();
       const transaction = this.txObject(
         this.lendingProgram,
-        'cancel_loan,',
+        'cancel_loan',
         {
           nft_contract_id: assetContractAddress,
           token_id: assetTokenId

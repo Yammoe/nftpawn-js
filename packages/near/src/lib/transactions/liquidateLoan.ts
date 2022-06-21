@@ -12,7 +12,7 @@ export default class LiquidateLoanTx extends Transaction {
       const transactions = [
         this.txObject(
           this.lendingProgram,
-          'liquidate_overdue_loan,',
+          'liquidate_overdue_loan',
           {
             nft_contract_id: assetContractAddress,
             token_id: assetTokenId

@@ -22,7 +22,7 @@ export default class PayLoanNearTx extends Transaction {
       const transactions = [
         this.txObject(
           this.lendingProgram,
-          'pay_back_loan_by_near,',
+          'pay_back_loan_by_near',
           {
             nft_contract_id: assetContractAddress,
             token_id: assetTokenId,

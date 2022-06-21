@@ -13,7 +13,7 @@ export default class AcceptOfferTx extends Transaction {
       const transactions = [
         this.txObject(
           this.lendingProgram,
-          'accept_offer,',
+          'accept_offer',
           {
             nft_contract_id: assetContractAddress,
             token_id: assetTokenId,
