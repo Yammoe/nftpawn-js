@@ -77,7 +77,6 @@ export const calculateMaxTotalPay = (principal: number, interest: number, durati
 */
 export const calculateTotalPay = (principal: number, interest: number, duration: number, decimals: number, startedAt: number) => {
   const payAt = dayjs().unix();
-  const _decimal = new BigNumber(10).pow(decimals)
 
   let maxLoanDay = Math.floor(duration / DAY_SECS);
   if (maxLoanDay === 0) maxLoanDay = 1;
@@ -91,7 +90,7 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
   }
 
   const primaryInterest = new BigNumber(principal)
-    .multipliedBy(_decimal)
+    .shiftedBy(decimals)
     .multipliedBy(interest)
     .multipliedBy(loanDay)
     .dividedToIntegerBy(YEAR_DAYS);
@@ -99,7 +98,7 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
   if (maxLoanDay > loanDay) {
     // 50% interest remain day
     secondaryInterest = new BigNumber(principal)
-      .multipliedBy(_decimal)
+      .shiftedBy(decimals)
       .multipliedBy(interest)
       .multipliedBy(maxLoanDay - loanDay)
       .dividedToIntegerBy(YEAR_DAYS)
@@ -108,15 +107,15 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
   }
   // 1% fee (base on principal amount)
   const matchingFee = new BigNumber(principal)
-    .multipliedBy(_decimal)
+    .shiftedBy(decimals)
     .multipliedBy(PLATFORM_FEE)
     .integerValue(BigNumber.ROUND_FLOOR);
 
   return new BigNumber(principal)
-    .multipliedBy(_decimal)
+    .shiftedBy(decimals)
     .plus(primaryInterest)
     .plus(secondaryInterest)
     .plus(matchingFee)
-    .dividedBy(_decimal)
+    .shiftedBy(-decimals)
     .toString(10);
 };
