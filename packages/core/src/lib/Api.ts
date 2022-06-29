@@ -76,8 +76,8 @@ export default class ApiController {
     return this.axioInstance.get(`${API_URL.ASSET_TRANSACTIONS}`, { params });
   };
 
-  async getBorrowStats(address: string): Promise<ResponseResult> {
-    return this.axioInstance.get(`${API_URL.BORROWER_STATS}/${address}`);
+  async getBorrowStats(address: string, network: string): Promise<ResponseResult> {
+    return this.axioInstance.get(API_URL.BORROWER_STATS, { params: { address, network }});
   };
 
   async getCollectionVerified(params: CollectionVerifiedParams): Promise<ResponseResult> {

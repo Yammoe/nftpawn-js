@@ -7,8 +7,6 @@ export const API_ENDPOINT = {
 export const API_URL = {
   SYSTEM_CONFIGS: `/configs`,
 
-  USER_SETTINGS: `/users/settings`,
-
   COLLECTIONS: `/collections/list`,
   COLLECTION_DETAIL: `/collections/detail`,
   COLLECTION_VERIFIED: `/collections/verified`,

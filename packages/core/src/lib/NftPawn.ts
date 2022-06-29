@@ -87,8 +87,8 @@ const NftPawn = {
     return api.getAssetTransactions(params);
   },
 
-  async borrower(address: string) {
-    return api.getBorrowStats(address);
+  async borrower(address: string, network: string) {
+    return api.getBorrowStats(address, network);
   },
 
 

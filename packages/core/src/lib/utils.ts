@@ -4,7 +4,7 @@ import { Chain } from './constants/network';
 
 const DAY_SECS = 86400;
 const YEAR_DAYS = 365;
-const EARLY_PAY_RATIO = 0.5;
+const EARLY_PAY_RATIO = 2;
 const PLATFORM_FEE = 0.01;
 
 /**
@@ -102,14 +102,12 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
       .multipliedBy(interest)
       .multipliedBy(maxLoanDay - loanDay)
       .dividedToIntegerBy(YEAR_DAYS)
-      .multipliedBy(EARLY_PAY_RATIO)
-      .integerValue(BigNumber.ROUND_FLOOR);
+      .dividedToIntegerBy(EARLY_PAY_RATIO)
   }
   // 1% fee (base on principal amount)
   const matchingFee = new BigNumber(principal)
     .shiftedBy(decimals)
-    .multipliedBy(PLATFORM_FEE)
-    .integerValue(BigNumber.ROUND_FLOOR);
+    .dividedToIntegerBy(1 / PLATFORM_FEE)
 
   return new BigNumber(principal)
     .shiftedBy(decimals)
@@ -117,5 +115,5 @@ export const calculateTotalPay = (principal: number, interest: number, duration:
     .plus(secondaryInterest)
     .plus(matchingFee)
     .shiftedBy(-decimals)
-    .toString(10);
-};
+    .toString()
+}
